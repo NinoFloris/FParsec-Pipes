@@ -1,89 +1,95 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>43972044-e21c-4442-a97a-f3bef84afd2e</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
+    <!-- Add the myget feed, without altering any other configurations. -->
+    <!-- To allow building net framework targets on linux/macOS with dotnet cli -->
+    <!-- See https://github.com/dotnet/sdk/issues/335 -->
+    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+
+    <!-- Keep FSharp.Core version low to prevent downgrade warnings for consumers -->
+    <FSharpCoreImplicitPackageVersion>4.2.*</FSharpCoreImplicitPackageVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    
     <RootNamespace>FParsec_Pipes</RootNamespace>
     <AssemblyName>FParsec-Pipes</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>FParsec-Pipes</Name>
-    <TargetFrameworkProfile />
+    <Authors>Robert Peele</Authors>
+    <Description>A library for building FParsec parsers using pipeline operators.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/rspeele/FParsec-Pipes</PackageProjectUrl>
+    <Copyright>Copyright 2016 Robert Peele</Copyright>
+    <PackageTags>parser combinator f# fsharp c# csharp parsec fparsec pipe pipes</PackageTags>
+
+    <PackageReleaseNotes>Minor performance improvements.</PackageReleaseNotes>
+
+    <Version>0.4.0</Version>
+    <FileVersion>0.4.0.0</FileVersion>
+    <AssemblyVersion>$(FileVersion)</AssemblyVersion>
+    <Version Condition="'$(VersionSuffix)' != ''">$(Version)-$(VersionSuffix)</Version>
+
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\FParsec-Pipes.XML</DocumentationFile>
-    <StartArguments />
-    <OtherFlags>--sig:bin/generated.fsi</OtherFlags>
+    <OtherFlags>$(OtherFlags) --sig:bin/generated.fsi</OtherFlags>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <WarningLevel>5</WarningLevel>
-    <DocumentationFile>bin\Release\FParsec-Pipes.XML</DocumentationFile>
-    <OtherFlags>--warnon:1182</OtherFlags>
+
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)/../../robert.peele.snk</AssemblyOriginatorKeyFile>
+    <OtherFlags>$(OtherFlags) --warnon:1182</OtherFlags>
   </PropertyGroup>
-  <PropertyGroup>
-    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '11.0'">
-      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Import Project="$(FSharpTargetsPath)" />
+
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
+    <!-- Taking rc version for FParsec to have netstandard + optimized builds support -->
+    <!-- See https://github.com/stephan-tolksdorf/fparsec/issues/26 -->
+    <PackageReference Include="FParsec" Version="1.0.4-RC3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="Pipes.fs" />
     <Compile Include="DefaultParsers.fs" />
     <Compile Include="Many.fs" />
     <Compile Include="Precedence.fs" />
-    <Content Include="packages.config" />
-    <None Include="FParsec-Pipes.nuspec" />
+    
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="FParsec">
-      <HintPath>..\packages\FParsec.1.0.2\lib\net40-client\FParsec.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FParsecCS">
-      <HintPath>..\packages\FParsec.1.0.2\lib\net40-client\FParsecCS.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
+
+  <PropertyGroup Condition="'$(TargetFramework)'== 'net45'">
+    <!-- Make .NET 4.5 reference assemblies available on any os -->
+    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.5/1.0.1/lib/net45/</FrameworkPathOverride>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'== 'net45'">
+      <!-- Make sure the reference assemblies are available -->
+      <PackageReference Include="Microsoft.TargetingPack.NETFramework.v4.5"
+                        Version="1.0.1" ExcludeAssets="All" PrivateAssets="All" />
+      <!-- The DLL case has changed between 4.5 and 4.6; this avoids a warning. -->
+      <Reference Include="System.XML" />
   </ItemGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+
+  <!-- See https://github.com/dotnet/netcorecli-fsc/issues/93 -->
+  <Target Name="FsharpNetCoreAssemblyInfoWorkaround"
+          AfterTargets="GetAssemblyVersion" BeforeTargets="GenerateAssemblyInfo">
+    <PropertyGroup>
+      <FsharpNetCoreAssemblyInfoFile>$(IntermediateOutputPath)$(AssemblyName).ExtraAssemblyInfo.fs</FsharpNetCoreAssemblyInfoFile>
+<FsharpNetCoreAssemblyInfo><![CDATA[
+namespace FParsec_Pipes.AssemblyInfo
+open System.Reflection
+[<assembly: System.Runtime.Versioning.TargetFrameworkAttribute("$(TargetFrameworkMoniker)", FrameworkDisplayName = "$(TargetFrameworkMonikerDisplayName)")>]
+[<assembly: AssemblyConfiguration("$(Configuration)")>]
+[<assembly: AssemblyCopyright("$(Copyright)")>]
+[<assembly: AssemblyFileVersion("$(FileVersion)")>]
+[<assembly: AssemblyInformationalVersion("$(InformationalVersion)")>]
+[<assembly: AssemblyProduct("$(Product)")>]
+[<assembly: AssemblyTitle("$(AssemblyName)")>]
+[<assembly: AssemblyVersion("$(AssemblyVersion)")>]
+do ()
+]]></FsharpNetCoreAssemblyInfo>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(FsharpNetCoreAssemblyInfoFile)" Lines="$(FsharpNetCoreAssemblyInfo)" Overwrite="true" Encoding="UTF-8" />
+    <ItemGroup>
+      <Compile Include="$(FsharpNetCoreAssemblyInfoFile)" />
+    </ItemGroup>
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

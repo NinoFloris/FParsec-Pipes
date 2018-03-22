@@ -1,4 +1,4 @@
-﻿#load "../packages/FSharp.Formatting.2.12.0/FSharp.Formatting.fsx"
+﻿#load "../packages/FSharp.Formatting.2.14.4/FSharp.Formatting.fsx"
 open FSharp.Literate
 open System.IO
 
